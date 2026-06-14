@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Gửi Hoan</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #050002;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        touch-action: none;
+      }
+
+      #start-screen {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #1a0b12;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: #ffb3c6;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 100;
+        transition: opacity 1s ease;
+        text-align: center;
+      }
+
+      #letter-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.8);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 1.5s ease;
+        z-index: 50;
+      }
+
+      #letter-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .paper {
+        background: #fffdf5;
+        width: 85%;
+        max-width: 450px;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(255, 105, 180, 0.4);
+        color: #333;
+        line-height: 1.8;
+        transform: translateY(50px) scale(0.8);
+        transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-align: center;
+      }
+
+      #letter-overlay.show .paper {
+        transform: translateY(0) scale(1);
+      }
+
+      .paper h2 {
+        color: #d81b60;
+        margin-top: 0;
+        font-family: "Courier New", Courier, monospace;
+        font-size: 2rem;
+      }
+
+      #hint {
+        position: absolute;
+        bottom: 20px;
+        width: 100%;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        pointer-events: none;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="start-screen">
+      <div id="start-btn">Nhấn vào màn hình để mở quà nhé ❤️</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="letter-overlay">
+      <div class="paper">
+        <h2>Gửi Hoan...</h2>
+        <p>Tuấn viết những dòng này để gửi lời xin lỗi chân thành nhất...</p>
+        <p>
+          Xin lỗi vì những lúc vô tâm làm Hoan buồn. Tuấn biết mình còn nhiều
+          thiếu sót, không đủ bản lĩnh, nói được mà đôi khi chưa làm được.
+        </p>
+        <p>Nhưng Tuấn thực sự rất thương Hoan. Cảm ơn Hoan vì đã luôn ở đó.</p>
+        <p>Mãi yêu Hoan! ❤️</p>
+      </div>
+    </div>
+
+    <div id="hint">
+      Cuộn chuột để Zoom. Nhấp đúp (hoặc chạm 2 lần) để mở thư.
+    </div>
+
+    <audio id="bg-music" loop>
+      <source
+        src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <script>
+      const container = document.getElementById("canvas-container");
+      const scene = new THREE.Scene();
+
+      const camera = new THREE.PerspectiveCamera(
+        45,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000,
+      );
+      camera.position.z = 25;
+
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.enablePan = false;
+
+      // --- THÊM TÍNH NĂNG ZOOM TẠI ĐÂY ---
+      controls.enableZoom = true;
+      controls.minDistance = 7; // Khoảng cách zoom gần nhất
+      controls.maxDistance = 40; // Khoảng cách zoom xa nhất
+
+      const starsGeo = new THREE.BufferGeometry();
+      const starsArray = new Float32Array(600 * 3);
+      for (let i = 0; i < 600 * 3; i++)
+        starsArray[i] = (Math.random() - 0.5) * 100;
+      starsGeo.setAttribute(
+        "position",
+        new THREE.BufferAttribute(starsArray, 3),
+      );
+      const starMesh = new THREE.Points(
+        starsGeo,
+        new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 }),
+      );
+      scene.add(starMesh);
+
+      const heartGroup = new THREE.Group();
+      scene.add(heartGroup);
+
+      function createTextTexture(text) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 128;
+        canvas.height = 64;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "transparent";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.font = 'bold 32px "Courier New", monospace';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#ff1493";
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        return texture;
+      }
+
+      const nameTexture = createTextTexture("Hoan");
+
+      const positions = [];
+      const numPoints = 1500;
+
+      while (positions.length < numPoints * 3) {
+        let x = (Math.random() - 0.5) * 3.5;
+        let y = (Math.random() - 0.5) * 3.5;
+        let z = (Math.random() - 0.5) * 3.5;
+
+        let eq =
+          Math.pow(x * x + 2.25 * y * y + z * z - 1, 3) -
+          x * x * z * z * z -
+          0.1125 * y * y * z * z * z;
+
+        if (eq <= 0) {
+          positions.push(x * 5, z * 5, y * 5);
+        }
+      }
+
+      const heartGeometry = new THREE.BufferGeometry();
+      heartGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(positions, 3),
+      );
+
+      const heartMaterial = new THREE.PointsMaterial({
+        size: 1.5,
+        map: nameTexture,
+        transparent: true,
+        alphaTest: 0.1,
+        depthWrite: false,
+      });
+
+      const textHeartMesh = new THREE.Points(heartGeometry, heartMaterial);
+      heartGroup.add(textHeartMesh);
+
+      const imageGroup = new THREE.Group();
+      scene.add(imageGroup);
+      const textureLoader = new THREE.TextureLoader();
+
+      const imageUrls = [
+        "anh1.jpg",
+        "anh2.jpg",
+        "anh3.jpg",
+        "anh4.jpg",
+        "anh5.jpg",
+      ];
+
+      imageUrls.forEach((url, index) => {
+        textureLoader.load(
+          url,
+          (texture) => {
+            const geometry = new THREE.PlaneGeometry(3.5, 4.5);
+            const material = new THREE.MeshBasicMaterial({
+              map: texture,
+              side: THREE.DoubleSide,
+              transparent: true,
+            });
+            const imagePlane = new THREE.Mesh(geometry, material);
+
+            const phi = Math.acos(-1 + (2 * index) / imageUrls.length);
+            const theta = Math.sqrt(imageUrls.length * Math.PI) * phi;
+
+            const radius = 10 + Math.random() * 4;
+            imagePlane.position.setFromSphericalCoords(radius, phi, theta);
+            imagePlane.lookAt(0, 0, 0);
+
+            imageGroup.add(imagePlane);
+          },
+          undefined,
+          () => {
+            console.log("Đang chờ ảnh: " + url);
+          },
+        );
+      });
+
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsedTime = clock.getElapsedTime();
+
+        heartGroup.position.y = Math.sin(elapsedTime * 2) * 0.5;
+        heartGroup.rotation.y = elapsedTime * 0.5;
+
+        const beat =
+          1 + Math.pow(Math.abs(Math.sin(elapsedTime * 3)), 10) * 0.05;
+        heartGroup.scale.set(beat, beat, beat);
+
+        imageGroup.rotation.y += 0.003;
+        imageGroup.rotation.z = Math.sin(elapsedTime * 0.5) * 0.1;
+
+        imageGroup.children.forEach((img, i) => {
+          img.position.y += Math.sin(elapsedTime * 2 + i) * 0.02;
+        });
+
+        starMesh.rotation.y = elapsedTime * 0.02;
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      const startScreen = document.getElementById("start-screen");
+      const bgMusic = document.getElementById("bg-music");
+      const letterOverlay = document.getElementById("letter-overlay");
+
+      startScreen.addEventListener("click", () => {
+        bgMusic.play().catch((e) => console.log(e));
+        startScreen.style.opacity = "0";
+        setTimeout(() => {
+          startScreen.style.display = "none";
+        }, 1000);
+      });
+
+      let isOpened = false;
+      function openLetter() {
+        if (isOpened || startScreen.style.display !== "none") return;
+        isOpened = true;
+
+        // Khi nhấp đúp sẽ tự động zoom lại gần (z: 8) để đọc thư
+        gsap.to(camera.position, {
+          z: 8,
+          duration: 2.5,
+          ease: "power2.inOut",
+          onComplete: () => {
+            letterOverlay.classList.add("show");
+          },
+        });
+      }
+
+      window.addEventListener("dblclick", openLetter);
+
+      let lastTap = 0;
+      window.addEventListener("touchend", (e) => {
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
+        if (tapLength < 500 && tapLength > 0) {
+          openLetter();
+          e.preventDefault();
+        }
+        lastTap = currentTime;
+      });
+
+      letterOverlay.addEventListener("click", (e) => {
+        if (e.target === letterOverlay) {
+          letterOverlay.classList.remove("show");
+
+          // Khi đóng thư, thay vì trả camera về 25 cố định,
+          // thì trả về vị trí vừa đẹp để xem toàn cảnh
+          gsap.to(camera.position, {
+            z: 25,
+            duration: 2,
+            ease: "power2.inOut",
+          });
+          isOpened = false;
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
+</html>
