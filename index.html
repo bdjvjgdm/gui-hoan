@@ -1,126 +1,72 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-  <head>
+<head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Gửi Hoan</title>
     <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #050002;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        touch-action: none;
-      }
+        body { margin: 0; overflow: hidden; background-color: #050002; font-family: 'Segoe UI', sans-serif; touch-action: none; }
 
-      #start-screen {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #1a0b12;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        color: #ffb3c6;
-        font-size: 1.5rem;
-        cursor: pointer;
-        z-index: 100;
-        transition: opacity 1s ease;
-        text-align: center;
-      }
+        #start-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1a0b12; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: #ffb3c6;
+            cursor: pointer; z-index: 100; transition: opacity 1s ease; text-align: center;
+        }
 
-      #letter-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.8);
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 1.5s ease;
-        z-index: 50;
-      }
+        #volume-hint { font-size: 0.9rem; margin-top: 15px; color: #ff69b4; }
 
-      #letter-overlay.show {
-        opacity: 1;
-        pointer-events: auto;
-      }
+        #letter-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.85); opacity: 0;
+            pointer-events: none; transition: opacity 0.5s ease; z-index: 50;
+        }
 
-      .paper {
-        background: #fffdf5;
-        width: 85%;
-        max-width: 450px;
-        padding: 40px;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(255, 105, 180, 0.4);
-        color: #333;
-        line-height: 1.8;
-        transform: translateY(50px) scale(0.8);
-        transition: transform 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        text-align: center;
-      }
+        #letter-overlay.show { opacity: 1; pointer-events: auto; }
 
-      #letter-overlay.show .paper {
-        transform: translateY(0) scale(1);
-      }
+        /* Bức thư bung dọc và cuộn được */
+        .paper {
+            background: #fffdf5; width: 85%; max-width: 450px;
+            max-height: 80vh; padding: 40px; border-radius: 12px;
+            overflow-y: auto; transform: scaleY(0);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center; color: #333; line-height: 1.8;
+            font-family: 'Georgia', serif; box-shadow: 0 10px 40px rgba(255, 105, 180, 0.4);
+        }
 
-      .paper h2 {
-        color: #d81b60;
-        margin-top: 0;
-        font-family: "Courier New", Courier, monospace;
-        font-size: 2rem;
-      }
+        #letter-overlay.show .paper { transform: scaleY(1); }
 
-      #hint {
-        position: absolute;
-        bottom: 20px;
-        width: 100%;
-        text-align: center;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.9rem;
-        pointer-events: none;
-        z-index: 10;
-      }
+        .paper h2 { color: #d81b60; margin-top: 0; font-family: 'Brush Script MT', cursive; font-size: 2.5rem; }
+
+        #hint {
+            position: absolute; bottom: 20px; width: 100%; text-align: center;
+            color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; pointer-events: none; z-index: 10;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
+
     <div id="start-screen">
-      <div id="start-btn">Nhấn vào màn hình đi bé ❤️</div>
+        <div id="start-btn">Nhấn vào màn hình đi bé ❤️</div>
+        <div id="volume-hint">Gợi ý: Hoan nhớ vặn nhỏ âm lượng trước khi mở nha!</div>
     </div>
 
     <div id="canvas-container"></div>
 
     <div id="letter-overlay">
-      <div class="paper">
-        <h2>Gửi Hoan...</h2>
-        <p>Anh viết cái này là để tâm sự với em óooo...</p>
-        <p>
-          Em uiii, anh gồng hong phải là gồng chịu đựng kiểu bất công hay không phải con người thiệt của anh, anh gồng là gồng để đỡ nhớ em á chớ a nhớ em chịu hong nẫu lúc nào a cũng muốn em ở gần anh hết asaaa dún 1 cặp dợ chồng dậy á 😜, em em em sợ em chán anhh anh cũng sợ em chán anh nhma a tin là em là một cô bé thuongwgg a quá chừng sẽ hong bỏ anhh đâu đúng hong anh thấy ngta họ quen đc ~10 năm ngta mí cứ mờ mới gì mình hăm làm đc ha 🤭. à đr e biết là mấy cái ngày hong có em là anh chán nản mà buồn buồn hong biết lmj luôn á kiểu đi một chập là " ước gì có em ở đây ha, giờ mà có ẻm đã biết mâý được nchy đc ôm đc hun emmm sướnggg🤗 ".anh thích đc em gọi là " anh yeeuuu 😍" chời ơi nó đã mà sướng mà nó mát dạ mát gan lúm á hè hè 😅.anh thương bé nhiều lumsmm có thể là to bằng cả trái đất lum á chời ơi sao mà a thấy em hong lúc nào mà a hong ấy á kiểu như nhìn em là a thấy thương è moa moa 😘😘, anh sợ em đọc cái này chắc em rùn mình vá kbt sao em bị d luônnnn. em em lúc mà a thấy em đau á là mặt a tái mét luôn sót lắm cục vàng của anhh mà bị đau là anh sót nên a mới hơi tức giận vụ sức khỏe ví dụ như ăn uống ngủ nghỉ đồ á anh sợ emm đau lắm đau bụng đau lòng nên a ấy á😖😖. hmm trong suốt mấy tháng qua a hong có chút nào gọi là chán em càng hong có ý định bỏ em hay là kh qtam em đồ á lắm lúc a muốn mai đi cưới em cơ kkk 😝. 😣ụmm giờ a thấy thương emm thương tâm hồn thương nỗi đau thương em a muốn làm cái gì đó để có thể cho em thấy điều đó là thật mà á anh cố làm cái gì là nó lại phản tác dungjgg 😭, đôi khi a thấy anh vô dụng luôn á , bh a đang sống trong con ng thật của anh gặp em đối với em anh k có chút cảnh giác cũng như là giấu giếm cái gì đối với em a có thể dành tất cả hì hì miễn là anh có thể đáp ứng và điều đó cho e hạnh phúc là được 🤗🤗. anh còn nhiều tâm sự lúm nào a kể em nghee nữa nhenn mấy đó a phải nói miệng cơ nó mí hấp dẫn tin nhắn của anh nó  k có chứa biểu cảm trong đóo
-        </p>
-        <p>Nhưng Tuấn thực sự rất thương Hoan. Cảm ơn Hoan vì đã luôn ở đó.</p>
-        <p>Mãi yêu Hoan! ❤️</p>
-      </div>
+        <div class="paper">
+            <h2>Gửi Hoan...</h2>
+            <p>Anh viết cái này là để tâm sự với em óooo...</p>
+            <p>Em uiii, anh gồng hong phải là gồng chịu đựng kiểu bất công hay không phải con người thiệt của anh, anh gồng là gồng để đỡ nhớ em á chớ a nhớ em chịu hong nẫu lúc nào a cũng muốn em ở gần anh hết asaaa dún 1 cặp dợ chồng dậy á 😜, em em em sợ em chán anhh anh cũng sợ em chán anh nhma a tin là em là một cô bé thuongwgg a quá chừng sẽ hong bỏ anhh đâu đúng hong anh thấy ngta họ quen đc ~10 năm ngta mí cứ mờ mới gì mình hăm làm đc ha 🤭. à đr e biết là mấy cái ngày hong có em là anh chán nản mà buồn buồn hong biết lmj luôn á kiểu đi một chập là " ước gì có em ở đây ha, giờ mà có ẻm đã biết mâý được nchy đc ôm đc hun emmm sướnggg🤗 ".anh thích đc em gọi là " anh yeeuuu 😍" chời ơi nó đã mà sướng mà nó mát dạ mát gan lúm á hè hè 😅.anh thương bé nhiều lumsmm có thể là to bằng cả trái đất lum á chời ơi sao mà a thấy em hong lúc nào mà a hong ấy á kiểu như nhìn em là a thấy thương è moa moa 😘😘, anh sợ em đọc cái này chắc em rùn mình vá kbt sao em bị d luônnnn. em em lúc mà a thấy em đau á là mặt a tái mét luôn sót lắm cục vàng của anhh mà bị đau là anh sót nên a mới hơi tức giận vụ sức khỏe ví dụ như ăn uống ngủ nghỉ đồ á anh sợ emm đau lắm đau bụng đau lòng nên a ấy á😖😖. hmm trong suốt mấy tháng qua a hong có chút nào gọi là chán em càng hong có ý định bỏ em hay là kh qtam em đồ á lắm lúc a muốn mai đi cưới em cơ kkk 😝. 😣ụmm giờ a thấy thương emm thương tâm hồn thương nỗi đau thương em a muốn làm cái gì đó để có thể cho em thấy điều đó là thật mà á anh cố làm cái gì là nó lại phản tác dungjgg 😭, đôi khi a thấy anh vô dụng luôn á , bh a đang sống trong con ng thật của anh gặp em đối với em anh k có chút cảnh giác cũng như là giấu giếm cái gì đối với em a có thể dành tất cả hì hì miễn là anh có thể đáp ứng và điều đó cho e hạnh phúc là được 🤗🤗. anh còn nhiều tâm sự lúm nào a kể em nghee nữa nhenn mấy đó a phải nói miệng cơ nó mí hấp dẫn tin nhắn của anh nó k có chứa biểu cảm trong đóo</p>
+            <p>Mãi yêu Hoan! ❤️</p>
+        </div>
     </div>
 
-    <div id="hint">
-      Cuộn chuột để Zoom. Nhấp đúp (hoặc chạm 2 lần) để mở thư.
-    </div>
+    <div id="hint">Cuộn chuột để Zoom. Nhấp đúp (chạm 2 lần) để mở thư.</div>
 
     <audio id="bg-music" loop>
-      <source
-        src="SỐ 1 THẾ GIỚI - PHÁT HUY T4 _ OFFICIAL VISUALIZER [W7rindfYUHk].mp3"
-        type="audio/mpeg"
-      />
+        <source src="SỐ 1 THẾ GIỚI - PHÁT HUY T4 _ OFFICIAL VISUALIZER [W7rindfYUHk].mp3" type="audio/mpeg" />
     </audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -128,232 +74,83 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <script>
-      const container = document.getElementById("canvas-container");
-      const scene = new THREE.Scene();
+        const container = document.getElementById("canvas-container");
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 25;
 
-      const camera = new THREE.PerspectiveCamera(
-        45,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000,
-      );
-      camera.position.z = 25;
-
-      const renderer = new THREE.WebGLRenderer({
-        antialias: true,
-        alpha: true,
-      });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      container.appendChild(renderer.domElement);
-
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.enablePan = false;
-
-      // --- THÊM TÍNH NĂNG ZOOM TẠI ĐÂY ---
-      controls.enableZoom = true;
-      controls.minDistance = 7; // Khoảng cách zoom gần nhất
-      controls.maxDistance = 40; // Khoảng cách zoom xa nhất
-
-      const starsGeo = new THREE.BufferGeometry();
-      const starsArray = new Float32Array(600 * 3);
-      for (let i = 0; i < 600 * 3; i++)
-        starsArray[i] = (Math.random() - 0.5) * 100;
-      starsGeo.setAttribute(
-        "position",
-        new THREE.BufferAttribute(starsArray, 3),
-      );
-      const starMesh = new THREE.Points(
-        starsGeo,
-        new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 }),
-      );
-      scene.add(starMesh);
-
-      const heartGroup = new THREE.Group();
-      scene.add(heartGroup);
-
-      function createTextTexture(text) {
-        const canvas = document.createElement("canvas");
-        canvas.width = 128;
-        canvas.height = 64;
-        const ctx = canvas.getContext("2d");
-        ctx.fillStyle = "transparent";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.font = 'bold 32px "Comic Sans MS", Arial, sans-serif';
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#ff1493";
-        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
-
-        const texture = new THREE.CanvasTexture(canvas);
-        return texture;
-      }
-
-      const nameTexture = createTextTexture("Yêu Hoan");
-
-      const positions = [];
-      const numPoints = 1500;
-
-      while (positions.length < numPoints * 3) {
-        let x = (Math.random() - 0.5) * 3.5;
-        let y = (Math.random() - 0.5) * 3.5;
-        let z = (Math.random() - 0.5) * 3.5;
-
-        let eq =
-          Math.pow(x * x + 2.25 * y * y + z * z - 1, 3) -
-          x * x * z * z * z -
-          0.1125 * y * y * z * z * z;
-
-        if (eq <= 0) {
-          positions.push(x * 5, z * 5, y * 5);
-        }
-      }
-
-      const heartGeometry = new THREE.BufferGeometry();
-      heartGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(positions, 3),
-      );
-
-      const heartMaterial = new THREE.PointsMaterial({
-        size: 1.5,
-        map: nameTexture,
-        transparent: true,
-        alphaTest: 0.1,
-        depthWrite: false,
-      });
-
-      const textHeartMesh = new THREE.Points(heartGeometry, heartMaterial);
-      heartGroup.add(textHeartMesh);
-
-      const imageGroup = new THREE.Group();
-      scene.add(imageGroup);
-      const textureLoader = new THREE.TextureLoader();
-
-      const imageUrls = [
-        "anh1.jpg",
-        "anh2.jpg",
-        "anh3.jpg",
-        "anh4.jpg",
-        "anh5.jpg",
-      ];
-
-      imageUrls.forEach((url, index) => {
-        textureLoader.load(
-          url,
-          (texture) => {
-            const geometry = new THREE.PlaneGeometry(3.5, 4.5);
-            const material = new THREE.MeshBasicMaterial({
-              map: texture,
-              side: THREE.DoubleSide,
-              transparent: true,
-            });
-            const imagePlane = new THREE.Mesh(geometry, material);
-
-            const phi = Math.acos(-1 + (2 * index) / imageUrls.length);
-            const theta = Math.sqrt(imageUrls.length * Math.PI) * phi;
-
-            const radius = 10 + Math.random() * 4;
-            imagePlane.position.setFromSphericalCoords(radius, phi, theta);
-            imagePlane.lookAt(0, 0, 0);
-
-            imageGroup.add(imagePlane);
-          },
-          undefined,
-          () => {
-            console.log("Đang chờ ảnh: " + url);
-          },
-        );
-      });
-
-      const clock = new THREE.Clock();
-      function animate() {
-        requestAnimationFrame(animate);
-        const elapsedTime = clock.getElapsedTime();
-
-        heartGroup.position.y = Math.sin(elapsedTime * 2) * 0.5;
-        heartGroup.rotation.y = elapsedTime * 0.5;
-
-        const beat =
-          1 + Math.pow(Math.abs(Math.sin(elapsedTime * 3)), 10) * 0.05;
-        heartGroup.scale.set(beat, beat, beat);
-
-        imageGroup.rotation.y += 0.003;
-        imageGroup.rotation.z = Math.sin(elapsedTime * 0.5) * 0.1;
-
-        imageGroup.children.forEach((img, i) => {
-          img.position.y += Math.sin(elapsedTime * 2 + i) * 0.02;
-        });
-
-        starMesh.rotation.y = elapsedTime * 0.02;
-        controls.update();
-        renderer.render(scene, camera);
-      }
-      animate();
-
-      const startScreen = document.getElementById("start-screen");
-      const bgMusic = document.getElementById("bg-music");
-      const letterOverlay = document.getElementById("letter-overlay");
-
-      startScreen.addEventListener("click", () => {
-        bgMusic.play().catch((e) => console.log(e));
-        startScreen.style.opacity = "0";
-        setTimeout(() => {
-          startScreen.style.display = "none";
-        }, 1000);
-      });
-
-      let isOpened = false;
-      function openLetter() {
-        if (isOpened || startScreen.style.display !== "none") return;
-        isOpened = true;
-
-        // Khi nhấp đúp sẽ tự động zoom lại gần (z: 8) để đọc thư
-        gsap.to(camera.position, {
-          z: 8,
-          duration: 2.5,
-          ease: "power2.inOut",
-          onComplete: () => {
-            letterOverlay.classList.add("show");
-          },
-        });
-      }
-
-      window.addEventListener("dblclick", openLetter);
-
-      let lastTap = 0;
-      window.addEventListener("touchend", (e) => {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
-        if (tapLength < 500 && tapLength > 0) {
-          openLetter();
-          e.preventDefault();
-        }
-        lastTap = currentTime;
-      });
-
-      letterOverlay.addEventListener("click", (e) => {
-        if (e.target === letterOverlay) {
-          letterOverlay.classList.remove("show");
-
-          // Khi đóng thư, thay vì trả camera về 25 cố định,
-          // thì trả về vị trí vừa đẹp để xem toàn cảnh
-          gsap.to(camera.position, {
-            z: 25,
-            duration: 2,
-            ease: "power2.inOut",
-          });
-          isOpened = false;
-        }
-      });
-
-      window.addEventListener("resize", () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableZoom = true; controls.minDistance = 7; controls.maxDistance = 40;
+
+        // Trái tim "Yêu Hoan"
+        const heartGroup = new THREE.Group(); scene.add(heartGroup);
+        function createTextTexture(text) {
+            const canvas = document.createElement("canvas"); canvas.width = 128; canvas.height = 64;
+            const ctx = canvas.getContext("2d"); ctx.fillStyle = "transparent"; ctx.fillRect(0, 0, 128, 64);
+            ctx.font = 'bold 32px "Comic Sans MS", sans-serif';
+            ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillStyle = "#ff1493";
+            ctx.fillText(text, 64, 32);
+            return new THREE.CanvasTexture(canvas);
+        }
+        
+        const positions = [];
+        for(let i=0; i<1500; i++) {
+            let x = (Math.random()-0.5)*3.5, y = (Math.random()-0.5)*3.5, z = (Math.random()-0.5)*3.5;
+            if (Math.pow(x*x + 2.25*y*y + z*z - 1, 3) - x*x*z*z*z - 0.1125*y*y*z*z*z <= 0) positions.push(x*5, z*5, y*5);
+        }
+        const geom = new THREE.BufferGeometry(); geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+        heartGroup.add(new THREE.Points(geom, new THREE.PointsMaterial({ size: 1.5, map: createTextTexture("Yêu Hoan"), transparent: true, alphaTest: 0.1, depthWrite: false })));
+
+        // Hình ảnh
+        const imageGroup = new THREE.Group(); scene.add(imageGroup);
+        const loader = new THREE.TextureLoader();
+        ['anh1.jpg', 'anh2.jpg', 'anh3.jpg', 'anh4.jpg', 'anh5.jpg'].forEach((url, i) => {
+            loader.load(url, (tex) => {
+                const mesh = new THREE.Mesh(new THREE.PlaneGeometry(3.5, 4.5), new THREE.MeshBasicMaterial({map: tex, side: 2, transparent: true}));
+                const phi = Math.acos(-1 + 2*i/5), theta = Math.sqrt(5*Math.PI) * phi;
+                mesh.position.setFromSphericalCoords(12, phi, theta);
+                mesh.lookAt(0,0,0);
+                imageGroup.add(mesh);
+            });
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+            heartGroup.position.y = Math.sin(t*2)*0.5;
+            heartGroup.rotation.y = t*0.5;
+            imageGroup.rotation.y += 0.003;
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Xử lý sự kiện
+        const startScreen = document.getElementById("start-screen");
+        startScreen.onclick = () => {
+            document.getElementById("bg-music").play().catch(e => console.log(e));
+            startScreen.style.opacity = "0";
+            setTimeout(() => startScreen.style.display = "none", 1000);
+        };
+
+        function openLetter() {
+            if (startScreen.style.display !== "none") return;
+            document.getElementById("letter-overlay").classList.add("show");
+            gsap.to(camera.position, { z: 8, duration: 1.5 });
+        }
+
+        window.ondblclick = openLetter;
+        document.getElementById("letter-overlay").onclick = (e) => {
+            if(e.target.id === "letter-overlay") {
+                document.getElementById("letter-overlay").classList.remove("show");
+                gsap.to(camera.position, { z: 25, duration: 1.5 });
+            }
+        };
     </script>
-  </body>
+</body>
 </html>
